@@ -10,24 +10,28 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
- * Kontroler, který obsahuje dvě metody. Spring kontroler sám vytvoří a zvaolá správnou metodu v závislosti na tom, kterou adresu prohlížeč volá.
+ * Kontroler, který obsahuje dvě metody. Spring kontroler sám vytvoří a zavolá správnou metodu v závislosti na tom, kterou adresu prohlížeč volá.
  *
- * Adresa {@code /} není pokrytá žádnou metodou kontroleru. Spring se v tom případě pokusí najít soubor {@code src/main/resources/static/index.ftlh}
+ * Adresa {@code /} není pokrytá žádnou metodou kontroleru. Spring se v tom případě pokusí najít soubor {@code src/main/resources/static/index.html}
  * a odeslat prohlížeči ten. V našem projektu takový soubor je, tím pádem se na úvodní obrazovce zobrazí příslušná úvodní stránka.
  *
  * @author Filip Jirsák
  */
+
 @Controller
 public class DateTimeController {
+
   /**
    * České „locale“ – proměnnou použijeme dále ke specifikaci, že datum a čas chceme formátovat česky a pro ČR. Název měsíce tak bude česky.
    */
   private static final Locale LOCALE = Locale.forLanguageTag("cs-CZ");
+
   /**
    * Formátovač pro datum. Datum bude česky a bude se vypisovat ve formátu {@code d. MMMM yyyy} – tedy den v měsíci následovaný tečkou, pak měsíc celým slovem
    * a nakonec čtyřmístný rok.
    */
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("d. MMMM yyyy", LOCALE);
+
   /**
    * Formátovač pro čas. Opět dle českých zvyklostí. Formát {@code H:mm} znamená, že na začátku bude hodina ve 24hodinovém formátu bez úvodní nuly (tj. např.
    * 1 nebo 23), pak dvojtečka a za ní minuty s úvodní nulou (tj. třeba „00“).
@@ -40,8 +44,13 @@ public class DateTimeController {
    * @return Sdružený objekt obsahující model a informace o view.
    */
   @GetMapping("/datum")
-  public String datum() {
-    return "index";
+  public ModelAndView datum() {
+    //Vytvoříme si sdružený objekt pro model a view. Použijeme view „datum“, tedy šablonu v souboru „src/main/resources/templates/datum.ftlh“.
+    ModelAndView result = new ModelAndView("datum");
+    //Do modelu pod klíčem „datum“ vložíme aktuální datum zformátované dle českých zvyklostí.
+    result.addObject("datum", LocalDate.now().format(DATE_FORMATTER));
+    //Sdružený objekt vrátíme z metody, Spring jej vezme a zavolá příslušnou Thymeleaf šablonu a předá jí data z našeho modelu.
+    return result;
   }
 
   /**
@@ -50,7 +59,21 @@ public class DateTimeController {
    * @return Sdružený objekt obsahující model a informace o view.
    */
   @GetMapping("/cas")
-  public String cas() {
-    return "index";
+  public ModelAndView cas() {
+    //Vytvoříme si sdružený objekt pro model a view. Použijeme view „datum“, tedy šablonu v souboru „src/main/resources/templates/cas.ftlh“.
+    ModelAndView result = new ModelAndView("cas");
+    //Do modelu pod klíčem „datum“ vložíme aktuální čas zformátovaný dle českých zvyklostí.
+    result.addObject("cas", LocalTime.now().format(TIME_FORMATTER));
+    //Sdružený objekt vrátíme z metody, Spring jej vezme a zavolá příslušnou Thymeleaf šablonu a předá jí data z našeho modelu.
+    return result;
   }
+
+    @GetMapping("/")
+    public ModelAndView datumACas () {
+      ModelAndView resultdatumACas = new ModelAndView("index");
+      resultdatumACas.addObject("datum", LocalDate.now().format(DATE_FORMATTER));
+      resultdatumACas.addObject("cas", LocalTime.now().format(TIME_FORMATTER));
+      return resultdatumACas;
+    }
+
 }
